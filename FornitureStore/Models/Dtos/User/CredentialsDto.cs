@@ -8,7 +8,7 @@ namespace FornitureStore.Models.Dtos.User
         [EmailAddress]
         public string Email { get; set; } = "savoyafausto@gmail.com";
         [Required]
-        [MaxLength(45)]
+        [MaxLength(70)]
         public string Password { get; set; } = "123456";
     }
 }

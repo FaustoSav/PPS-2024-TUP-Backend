@@ -80,31 +80,7 @@ namespace FornitureStore.Controllers
             }
         }
 
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> AddUser([FromBody] UserCreateDto user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                bool userIsCreated = await _userService.AddUserAsync(user);
-                if (!userIsCreated)
-                {
-                    return BadRequest("Hubo un error al crear el usuario, intente nuevamente y verifique los datos.");
-                }
-
-                return Ok("Usuario creado exitosamente");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Hubo un problema al agregar el usuario.");
-                return StatusCode(500, "Ocurrió un error al procesar su solicitud.");
-            }
-        }
+       
 
         [HttpDelete]
         [Route("{userId:int}")]

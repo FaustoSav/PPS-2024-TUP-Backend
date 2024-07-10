@@ -25,21 +25,22 @@ namespace FornitureStore.Services.Implementations
             User? userForLogin = await _fornitureStoreContext.Users.SingleOrDefaultAsync(u => u.Email == credentials.Email);
             if (userForLogin != null)
             {
-                if (userForLogin.Password == credentials.Password)
+                // Verificar la contraseña hasheada
+                if (BCrypt.Net.BCrypt.Verify(credentials.Password, userForLogin.Password))
                 {
                     response.Result = true;
-                    response.Message = "Inicio de sesion exitoso";
+                    response.Message = "Inicio de sesión exitoso";
                 }
                 else
                 {
                     response.Result = false;
-                    response.Message = "Contraseña Incorrecta";
+                    response.Message = "Contraseña incorrecta";
                 }
             }
             else
             {
                 response.Result = false;
-                response.Message = "Correo Incorrecto";
+                response.Message = "Correo incorrecto";
             }
             return response;
         }
@@ -59,39 +60,6 @@ namespace FornitureStore.Services.Implementations
             return await _fornitureStoreContext.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == idUser);
-        }
-        public async Task<bool> AddUserAsync(UserCreateDto newUser)
-        {
-            bool userExist = await _fornitureStoreContext.Users
-                .AnyAsync(u => u.Email == newUser.Email);
-
-            if (userExist)
-            {
-                _logger.LogWarning("El usuario con email {Email} ya existe en la base de datos", newUser.Email);
-                return false;
-            }
-
-            try
-            {
-                User userToAdd = new User
-                {
-                    UserName = newUser.UserName,
-                    FirstName = newUser.FirstName,
-                    LastName = newUser.LastName,
-                    Password = newUser.Password,
-                    Email = newUser.Email,
-                    Role = newUser.Role.ToString()
-                };
-
-                await _fornitureStoreContext.Users.AddAsync(userToAdd);
-                await _fornitureStoreContext.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Hubo un problema al agregar el usuario con email {Email} a la base de datos", newUser.Email);
-                return false;
-            }
         }
         public async Task<bool> DeleteUserAsync(int userId)
         {
@@ -140,6 +108,32 @@ namespace FornitureStore.Services.Implementations
                 _logger.LogError(ex, "Hubo un error al intentar actualizar el usuario con ID {Id}", user.Id);
                 return false;
             }
+        }
+
+
+        public async Task<BaseResponse> CreateUserAsync(UserCreateDto userCreateDto)
+        {
+            BaseResponse response = new BaseResponse();
+
+            // Hashear la contraseña
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password);
+
+            User newUser = new User
+            {
+                UserName = userCreateDto.UserName,
+                FirstName = userCreateDto.FirstName,
+                LastName = userCreateDto.LastName,
+                Password = hashedPassword, // Usar la contraseña hasheada
+                Email = userCreateDto.Email,
+                Role = userCreateDto.Role.ToString()
+            };
+
+            _fornitureStoreContext.Users.Add(newUser);
+            await _fornitureStoreContext.SaveChangesAsync();
+
+            response.Result = true;
+            response.Message = "Usuario registrado exitosamente";
+            return response;
         }
     }
 }

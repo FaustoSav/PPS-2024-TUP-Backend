@@ -18,7 +18,7 @@ namespace FornitureStore.Models.Dtos.User
         public string LastName { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(45)]
+        [MaxLength(70)]
         public string Password { get; set; } = string.Empty;
 
         [Required]
