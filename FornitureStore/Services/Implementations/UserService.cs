@@ -3,6 +3,7 @@ using FornitureStore.Models.Dtos.User;
 using FornitureStore.Models.Entities;
 using FornitureStore.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Runtime.ExceptionServices;
 
 namespace FornitureStore.Services.Implementations
@@ -128,11 +129,19 @@ namespace FornitureStore.Services.Implementations
                 Role = userCreateDto.Role.ToString()
             };
 
-            _fornitureStoreContext.Users.Add(newUser);
-            await _fornitureStoreContext.SaveChangesAsync();
+            response.Result = false;
+            response.Message = "El correo ingresado ya existe";
+            User? userForRegister = await _fornitureStoreContext.Users.SingleOrDefaultAsync(u => u.Email == userCreateDto.Email);
 
-            response.Result = true;
-            response.Message = "Usuario registrado exitosamente";
+            if(userForRegister == null)
+            {
+                _fornitureStoreContext.Users.Add(newUser);
+                await _fornitureStoreContext.SaveChangesAsync();
+                response.Result = true;
+                response.Message = "Usuario registrado exitosamente";
+            }
+            
+
             return response;
         }
     }
