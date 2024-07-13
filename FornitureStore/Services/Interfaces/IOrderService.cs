@@ -14,7 +14,7 @@ namespace FornitureStore.Services.Interfaces
         Task AddOrderAsync(OrderCreateDto order);
         //Task<bool> UpdateOrderAsync(Order order, List<OrderDetail> orderDetails);
         Task<bool> DeleteOrderAndDetailsAsync(int orderId);
-
+        Task<IEnumerable<Order>> GetCurrentUserOrdersAsync(int currentUserId);
 
 
 

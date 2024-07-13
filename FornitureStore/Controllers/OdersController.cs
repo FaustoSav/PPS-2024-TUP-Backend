@@ -4,6 +4,8 @@ using FornitureStore.Services.Implementations;
 using FornitureStore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FornitureStore.Controllers
 {
@@ -128,5 +130,26 @@ namespace FornitureStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpGet("current")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUserOrders()
+        {
+
+           
+           
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            int userId = int.Parse(userIdClaim);
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            return Ok(orders);
+        }
+
+
+
     }
 }

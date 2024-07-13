@@ -148,5 +148,14 @@ namespace FornitureStore.Services.Implementations
             }
         }
 
+        public async Task<IEnumerable<Order>> GetCurrentUserOrdersAsync(int currentUserId)
+        {
+            return await _fornitureStoreContext.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o => o.UserId == currentUserId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
     }
 }
